@@ -15,11 +15,19 @@ services:
 
   web:
     image: anushreej537/fastapi-app:latest
-    ports:
-      - "8000:8000"
+    # PORTS REMOVED: Scaling web=3 will now work because containers 
+    # stay inside the internal network on port 8000 without hitting your Windows host port.
     environment:
-      # Note the 'db' hostname matches the service name above
       - DATABASE_URL=postgresql://postgres:root@db:5432/create_pro_docker
     depends_on:
       db:
         condition: service_healthy
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
